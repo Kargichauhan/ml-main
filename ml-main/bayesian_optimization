@@ -1,0 +1,96 @@
+from bayes_opt import BayesianOptimization
+import pandas as pd
+
+class cubesat:
+    def __init__(self, size: str, hyperparameters):
+        """
+        Initialization remains the same as before.
+        """
+
+        self.size = size
+        self.name = "default cubesat"
+
+        # Initialize hyperparameters
+        self.hyperparameters = hyperparameters
+
+        # Rest of the initialization code...
+
+    def objective_function(self, hyperparameters):
+        """
+        Objective function to optimize during Bayesian optimization.
+        Perform simulation with given hyperparameters and return performance metric.
+        """
+
+        # Update hyperparameters
+        self.hyperparameters.update(hyperparameters)
+
+        
+        performance_metric = sum(hyperparameters.values())
+
+        return performance_metric
+
+    def bayesian_optimization(self):
+        """
+        Perform Bayesian optimization to find optimal hyperparameters.
+        """
+
+        # Define parameter bounds for Bayesian optimization
+        pbounds = {
+            'param1': (0, 1),
+            'param2': (0, 1),
+            # Add more hyperparameters with their bounds here
+        }
+
+        # Initialize Bayesian optimization object
+        optimizer = BayesianOptimization(
+            f=self.objective_function,
+            pbounds=pbounds,
+            random_state=1,  # Set random state for reproducibility
+            verbose=2,  # Set verbosity level
+        )
+
+        # Perform Bayesian optimization
+        optimizer.maximize(
+            init_points=5,  # Number of random initialization points
+            n_iter=10,  # Number of optimization steps
+        )
+
+        # Get optimal hyperparameters
+        optimal_hyperparameters = optimizer.max['params']
+
+        return optimal_hyperparameters
+
+    def run_simulation(self, hyperparameters):
+        """
+        Run simulation with given hyperparameters.
+        """
+        # Update hyperparameters
+        self.hyperparameters.update(hyperparameters)
+
+        
+
+    def generate_simulation_table(self):
+        """
+        Generate a table summarizing the hyperparameters and their corresponding performance metrics.
+        """
+        # Construct DataFrame with hyperparameters and performance metrics
+        data = {'Hyperparameters': list(self.hyperparameters.keys()),
+                'Values': list(self.hyperparameters.values())}
+        df = pd.DataFrame(data)
+
+        return df
+
+
+
+hyperparameters = {'param1': 0.5, 'param2': 0.5}  # Initial hyperparameters
+cubesat_instance = cubesat(size='1U', hyperparameters=hyperparameters)
+
+# Perform Bayesian optimization
+optimal_hyperparameters = cubesat_instance.bayesian_optimization()
+
+# Run simulation with optimal hyperparameters
+cubesat_instance.run_simulation(optimal_hyperparameters)
+
+# Generate simulation table
+simulation_table = cubesat_instance.generate_simulation_table()
+print(simulation_table)
